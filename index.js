@@ -87,7 +87,7 @@ cron.schedule('0 10 * * *', () => {
 }, {
   timezone: "Asia/Kolkata" 
 });
-
+  
 console.log("MotoTrack Backend Started. Cron job scheduled for 10 AM IST daily.");
 
 // Simple health check endpoint (Optional, just to keep Hugging Face happy)
