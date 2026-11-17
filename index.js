@@ -65,7 +65,7 @@ app.get('/trigger-alerts', async (req, res) => {
               click_action: `/bike/${doc.id}`
             },
             fcmOptions: {
-              link: `https://jp-bikes.vercel.app/bike/${doc.id}` // Unga vercel link
+              link: `https://http://jp-frontend-nine.vercel.app/bike/${doc.id}` // Unga vercel link
             }
           }
         });
