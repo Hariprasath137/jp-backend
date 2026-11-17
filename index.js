@@ -43,6 +43,7 @@ app.get('/trigger-alerts', async (req, res) => {
     const bikesSnapshot = await db.collection('bikes').where('status', '==', 'in-stock').get();
     const today = new Date();
     const notifications = [];
+// ... mela irukka code apdiye irukkattum
 
     bikesSnapshot.forEach(doc => {
       const bike = doc.data();
@@ -50,7 +51,6 @@ app.get('/trigger-alerts', async (req, res) => {
       const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
       if (days === 15 || days === 30 || days === 45) {
-       
         notifications.push({
           notification: {   
             title: `Dead Stock Alert! 🚨`,
@@ -64,11 +64,7 @@ app.get('/trigger-alerts', async (req, res) => {
       }
     });
 
-    for (const notif of notifications) {
-      // Puthu method to send message
-      await getMessaging().send({ notification: notif, token: adminToken });
-    }
-
+    // ITHU MATTUM THAAN IRUKKANUM (Pazhaya loop delete panniyachu)
     for (const payload of notifications) {
       await getMessaging().send({ ...payload, token: adminToken });
     }
