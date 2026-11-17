@@ -50,9 +50,16 @@ app.get('/trigger-alerts', async (req, res) => {
       const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
       if (days === 15 || days === 30 || days === 45) {
+       
         notifications.push({
-          title: `Dead Stock Alert! 🚨`,
-          body: `${bike.make} ${bike.model} (${bike.regNo}) is in stock for ${days} days.`,
+          notification: {   
+            title: `Dead Stock Alert! 🚨`,
+            body: `${bike.make} ${bike.model} (${bike.regNo}) is in stock for ${days} days.`,
+          },
+          data: { 
+            bikeId: doc.id,
+            click_action: `/bike/${doc.id}`
+          }
         });
       }
     });
@@ -60,6 +67,10 @@ app.get('/trigger-alerts', async (req, res) => {
     for (const notif of notifications) {
       // Puthu method to send message
       await getMessaging().send({ notification: notif, token: adminToken });
+    }
+
+    for (const payload of notifications) {
+      await getMessaging().send({ ...payload, token: adminToken });
     }
     
     res.send(`Checked inventory. Sent ${notifications.length} alerts.`);
