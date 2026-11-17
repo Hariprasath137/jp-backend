@@ -49,32 +49,32 @@ app.get('/trigger-alerts', async (req, res) => {
       const diffTime = Math.abs(today - new Date(bike.purchaseDate));
       const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-      if (days >= 0) { // Testing condition
+      if (days >= 0) { // Testing condition (Change back to 15,30,45 after testing)
         notifications.push({
-          notification: {   
-            title: `Dead Stock Alert! 🚨`,
-            body: `${bike.make} ${bike.model} (${bike.regNo}) is in stock for ${days} days.`,
-          },
-          data: { 
-            bikeId: doc.id,
-            click_action: `/bike/${doc.id}`
-          },
-          // ITHU THAAN PUTHUSU: Web browser-ku force panni push anuppa
-          webpush: {
-            notification: {
-              click_action: `/bike/${doc.id}`
-            },
-            fcmOptions: {
-              link: `https://http://jp-frontend-nine.vercel.app/bike/${doc.id}` // Unga vercel link
-            }
-          }
+          bikeId: doc.id,
+          title: `Dead Stock Alert! 🚨`,
+          body: `${bike.make} ${bike.model} (${bike.regNo}) is in stock for ${days} days.`
         });
       }
     });
 
-    for (const payload of notifications) {
-      await getMessaging().send({ ...payload, token: adminToken });
+    // PUTHU SIMPLE LOOP
+    for (const notif of notifications) {
+      await getMessaging().send({
+        token: adminToken,
+        notification: {
+          title: notif.title,
+          body: notif.body
+        },
+        data: {
+          bikeId: notif.bikeId
+        }
+      });
     }
+
+    // for (const payload of notifications) {
+    //   await getMessaging().send({ ...payload, token: adminToken });
+    // }
     
     res.send(`Checked inventory. Sent ${notifications.length} alerts.`);
   } catch (error) {
