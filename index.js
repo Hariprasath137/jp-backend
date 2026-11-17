@@ -50,7 +50,7 @@ app.get('/trigger-alerts', async (req, res) => {
       const diffTime = Math.abs(today - new Date(bike.purchaseDate));
       const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-      if (days >= 0) {
+      if (days >= 0) { // Testing condition
         notifications.push({
           notification: {   
             title: `Dead Stock Alert! 🚨`,
@@ -59,15 +59,24 @@ app.get('/trigger-alerts', async (req, res) => {
           data: { 
             bikeId: doc.id,
             click_action: `/bike/${doc.id}`
+          },
+          // ITHU THAAN PUTHUSU: Web browser-ku force panni push anuppa
+          webpush: {
+            notification: {
+              click_action: `/bike/${doc.id}`
+            },
+            fcmOptions: {
+              link: `https://jp-bikes.vercel.app/bike/${doc.id}` // Unga vercel link
+            }
           }
         });
       }
     });
 
-    // ITHU MATTUM THAAN IRUKKANUM (Pazhaya loop delete panniyachu)
     for (const payload of notifications) {
       await getMessaging().send({ ...payload, token: adminToken });
     }
+
     
     res.send(`Checked inventory. Sent ${notifications.length} alerts.`);
   } catch (error) {
