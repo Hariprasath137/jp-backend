@@ -1,6 +1,10 @@
 require('dotenv').config();
-const admin = require('firebase-admin');
 const express = require('express');
+
+// Puthu Firebase style imports (No more 'admin.credential')
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { getMessaging } = require('firebase-admin/messaging');
 
 // Firebase Setup
 const serviceAccount = {
@@ -9,14 +13,16 @@ const serviceAccount = {
   privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
 };
 
+let db = null;
+
 if (serviceAccount.projectId) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+    initializeApp({
+        credential: cert(serviceAccount)
     });
     console.log("Firebase Admin Initialized Successfully.");
+    db = getFirestore();
 }
 
-const db = admin.firestore ? admin.firestore() : null;
 const app = express();
 
 // Simple endpoint to keep Render awake
@@ -52,7 +58,8 @@ app.get('/trigger-alerts', async (req, res) => {
     });
 
     for (const notif of notifications) {
-      await admin.messaging().send({ notification: notif, token: adminToken });
+      // Puthu method to send message
+      await getMessaging().send({ notification: notif, token: adminToken });
     }
     
     res.send(`Checked inventory. Sent ${notifications.length} alerts.`);
