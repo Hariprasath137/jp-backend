@@ -44,7 +44,7 @@ app.get('/trigger-alerts', async (req, res) => {
       const diffTime = Math.abs(today - new Date(bike.purchaseDate));
       const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-      if (days >= 0) { // Testing condition
+      if (days === 15 || days === 30 || days === 45) { // Testing condition
         notifications.push({
           bikeId: doc.id,
           title: `Dead Stock Alert! 🚨`,
