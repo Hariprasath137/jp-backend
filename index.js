@@ -43,7 +43,6 @@ app.get('/trigger-alerts', async (req, res) => {
     const bikesSnapshot = await db.collection('bikes').where('status', '==', 'in-stock').get();
     const today = new Date();
     const notifications = [];
-// ... mela irukka code apdiye irukkattum
 
     bikesSnapshot.forEach(doc => {
       const bike = doc.data();
@@ -76,7 +75,6 @@ app.get('/trigger-alerts', async (req, res) => {
     for (const payload of notifications) {
       await getMessaging().send({ ...payload, token: adminToken });
     }
-
     
     res.send(`Checked inventory. Sent ${notifications.length} alerts.`);
   } catch (error) {
