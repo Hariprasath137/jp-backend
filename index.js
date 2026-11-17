@@ -40,16 +40,12 @@ app.get('/trigger-alerts', async (req, res) => {
     if (!tokenDoc.exists) return res.send("No admin token found");
     const adminToken = tokenDoc.data().token;
 
-    const bikesSnapshot = await db.collection('bikes').where('status', '==', 'in-stock').get();
-    const today = new Date();
-    const notifications = [];
-
     bikesSnapshot.forEach(doc => {
       const bike = doc.data();
       const diffTime = Math.abs(today - new Date(bike.purchaseDate));
       const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-      if (days >= 0) { // Testing condition (Change back to 15,30,45 after testing)
+      if (days >= 0) { // Testing condition (Change to 15,30,45 later)
         notifications.push({
           bikeId: doc.id,
           title: `Dead Stock Alert! 🚨`,
@@ -58,17 +54,23 @@ app.get('/trigger-alerts', async (req, res) => {
       }
     });
 
-    // PUTHU SIMPLE LOOP
+    // PUTHU LOOP: DB layum save aagum, Push um pogum
+    const now = Date.now();
     for (const notif of notifications) {
+      // 1. Save directly to Firestore Database
+      await db.collection('notifications').add({
+        title: notif.title,
+        body: notif.body,
+        bikeId: notif.bikeId,
+        timestamp: now,
+        read: false
+      });
+
+      // 2. Send Push Notification to phone
       await getMessaging().send({
         token: adminToken,
-        notification: {
-          title: notif.title,
-          body: notif.body
-        },
-        data: {
-          bikeId: notif.bikeId
-        }
+        notification: { title: notif.title, body: notif.body },
+        data: { bikeId: notif.bikeId }
       });
     }
 
